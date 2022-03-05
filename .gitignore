@@ -1,0 +1,3 @@
+*.pyc
+flask_task_env/
+flask_task.code-workspace

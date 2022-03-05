@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% set title = "Title of page" %}
+{% set description = "Description." %}
+
+
+{% block title %}
+{{title}}
+{% endblock %}
+
+{% block extra_head %}
+
+{% endblock %}
+
+{% block content %}
+<section>
+  <div>
+    <main role="main">
+      <div class="jumbotron">
+        <div class="container">
+          <h1 class="display-3">Open Nuclear Network Product</h1>
+          <p>The world is a beautiful place</p>
+        </div>
+      </div>
+
+      <br>
+      <br>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <h2>Add Products</h2>
+            <form id="saveProd">
+              <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" placeholder="Title", required>
+              </div>
+              <div class="form-group">
+                <label for="title">Price in EUR</label>
+                <input type="text" class="form-control" id="price" placeholder="Price in EUR" required>
+              </div>
+              <div class="form-group">
+                <label for="title">Number of Items</label>
+                <input type="number" class="form-control" id="stock" placeholder="Number of Items">
+              </div>
+              <div class="form-group">
+                <label for="title">Description</label>
+                <input type="text" class="form-control" id="desc" placeholder="Description">
+              </div>
+              <button type="submit" class="btn btn-primary mb-2">Save</button>
+            </form>
+          </div>
+
+          <div class="col-md-6">
+            <h2>Delete Product</h2>
+            <form id="DeleteProd">
+              <div class="form-group">
+                <label for="title">Delete Product</label>
+                <input type="text" class="form-control" id="prod_id" placeholder="Enter Product ID">
+              </div>
+              <button type="submit" class="btn btn-primary mb-2">Delete Product</button>
+            </form>
+          </div>
+        </div>
+        <hr>
+      </div>
+    </main>
+  </div>
+</section>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script type="text/javascript">
+  $("#saveProd").on('submit', (event) => {
+    event.preventDefault()
+    let title = $('#title').val()
+    let price = $('#price').val()
+    if (title.length === 0) return alert('Please enter a valid title')
+    if (!parseFloat(price)) return alert('Please enter a valid price')
+    if (parseFloat(price) < 0) return alert('Please enter a valid price')
+    let stock = $('#stock').val()
+    let desc = $('#desc').val()
+    $.ajax({
+      type: 'POST',
+      url: '/api/admin/products',
+      data: JSON.stringify({
+        'title': title,
+        'price': price,
+        'stock': stock,
+        'description': desc
+      }),
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      headers: {
+        'X-ADMIN-AUTH': getCookie('admin_auth_token'),
+      },
+      success: function (data) {
+        alert('Save product success: ' + data.product_id)
+      },
+      error: function (e) {
+        alert('An error has occured: ' + str(e))
+      }
+    });
+  })
+
+  $("#DeleteProd").on('submit', (event) => {
+    event.preventDefault()
+    let prod_id = $('#prod_id').val()
+    if (prod_id.length === 0) return alert('Please enter a valid product id')
+    $.ajax({
+      type: 'DELETE',
+      url: `/api/admin/products/${prod_id}`,
+      data: '',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      headers: {
+        'X-ADMIN-AUTH': getCookie('admin_auth_token'),
+      },
+      success: function (data) {
+        alert(data.message)
+      },
+      error: function (e) {
+        alert('An error has occured: ' + str(e))
+      }
+    });
+  })
+
+  window.addEventListener("load", () => {
+    $('#searchForm').hide()
+  });
+</script>
+
+{% endblock %}
